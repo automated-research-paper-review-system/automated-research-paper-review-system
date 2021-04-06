@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="">
+        <table border="1px">
+            <thead>
+                <tr>
+                    {% for field in form_fields %}
+                        <th>{{ field.label }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+        <tbody>
+            {% for record in conference_list %}
+                <tr>
+                    {% for field in form_fields %}
+                        <td>{{ record.get(field.name) }}</td>
+                    {% endfor %}
+                    <td><a href="{{ url_for('update_conference', id=record._id) }}">Edit</a></td>
+                    <td><a href="{{ url_for('delete_conference', id=record._id) }}">Delete</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+    </div>
+{% endblock content %}

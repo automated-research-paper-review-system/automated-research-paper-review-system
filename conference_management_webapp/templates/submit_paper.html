@@ -1,0 +1,66 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="content-section">
+        <form method="post" action="" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Submit Paper</legend>
+                <div class="form-group">
+                    {{ form.paper_title.label(class="form-control-label") }}
+                    {% if form.paper_title.errors %}
+                        {{ form.paper_title(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.paper_title.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.paper_title(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.keywords.label(class="form-control-label") }}
+                    {% if form.keywords.errors %}
+                        {{ form.keywords(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.keywords.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.keywords(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+            <div class="form-group">
+                    {{ form.abstract.label(class="form-control-label") }}
+                    {% if form.abstract.errors %}
+                        {{ form.abstract(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.abstract.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.abstract(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.paper_submission_date.label(class="form-control-label") }}
+                    {% if form.paper_submission_date.errors %}
+                        {{ form.paper_submission_date(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.paper_submission_date.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.paper_submission_date(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-outline-info") }}
+                </div>
+            </fieldset>
+        </form>
+    </div>
+{% endblock content %}
