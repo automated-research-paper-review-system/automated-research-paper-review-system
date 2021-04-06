@@ -16,7 +16,10 @@ def read_json(path_to_json):
     newdf = newdf.iloc[1:]
     newdf.insert(0, 'name', name)
     result = pd.merge(df, newdf, on=["name"])
-    # print(list(result["abstractText"]))
+    referenceMentions_count = str(list(result["referenceMentions"])[0]).lower().split().count('\'context\':')
+    references_count = str(list(result["references"])[0]).lower().split().count('\'year\':')
+    result['references'] = references_count
+    result['referenceMentions'] = referenceMentions_count
     return result
 
 def create_dataframe_from_parsed_pdfs():
