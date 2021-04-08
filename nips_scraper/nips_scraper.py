@@ -157,7 +157,6 @@ if __name__ == '__main__':
         df = pd.DataFrame(row)
         dataframe = dataframe.append(df)
         time.sleep(random.randint(1, 5))
-        break
 
     # print(dataframe)
     dataframe.to_csv('data.csv')
