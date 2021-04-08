@@ -55,10 +55,10 @@ def get_abstract(soup):
         return row
 
 
-def download_pdf(base_url, year):
+def download_pdf(base_url, pdf_dir):
     row = dict()
     try:
-        filename = f'./data/{year}/' + base_url.split('/')[-1]
+        filename = pdf_dir + base_url.split('/')[-1]
         response = requests.get(base_url, stream=True)
 
         with open(filename, 'wb') as pdf:
@@ -112,8 +112,14 @@ if __name__ == '__main__':
     parent_url = 'https://proceedings.neurips.cc/paper/2019'
     year = parent_url.split('/')[-1]
 
-    if not os.path.isdir(f'./data/{year}'):
-        os.mkdir(f'./data/{year}')
+    pdf_dir = f'./raw-data/{year}/'
+    processed_dir = f'./processed-data/{year}/'
+
+    if not os.path.isdir(pdf_dir):
+        os.makedirs(pdf_dir)
+
+    if not os.path.isdir(processed_dir):
+        os.makedirs(processed_dir)
 
     driver.get(parent_url)
 
@@ -142,7 +148,7 @@ if __name__ == '__main__':
         # pdf_link
         pdf_link = base_url.replace('Abstract.html', 'Paper.pdf')
         row['pdf_link'] = [pdf_link]
-        row.update(download_pdf(pdf_link, year))
+        row.update(download_pdf(pdf_link, pdf_dir))
 
         # reviews_link
         reviews_link = base_url.replace('Abstract.html', 'Reviews.html')
@@ -158,5 +164,7 @@ if __name__ == '__main__':
         dataframe = dataframe.append(df)
         time.sleep(random.randint(1, 5))
 
-    # print(dataframe)
+    print(dataframe.shape)
     dataframe.to_csv('data.csv')
+
+    os.system(f'java -Xmx6g -jar science-parse-cli-assembly-2.0.3.jar {pdf_dir} -o {processed_dir}')
