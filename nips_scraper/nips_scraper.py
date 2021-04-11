@@ -6,7 +6,6 @@ import time
 import random
 import os
 
-
 # Check your chrome version and download appropriate executable from https://chromedriver.chromium.org/downloads
 # update executable_path argument to the location of chromedriver.exe
 def configure_webdriver():
@@ -15,7 +14,7 @@ def configure_webdriver():
     chrome_options.add_argument('--disable-logging')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
-    driver = webdriver.Chrome(executable_path='C:/Users/KarnaveeKamdar/Downloads/chromedriver_win32/chromedriver.exe',
+    driver = webdriver.Chrome(executable_path='/usr/bin/chromedriver',
                               options=chrome_options)
     # driver = webdriver.Chrome(executable_path='/usr/bin/chromedriver', chrome_options=chrome_options)
     driver.implicitly_wait(10)
@@ -108,8 +107,9 @@ def get_meta_review(base_url):
 
 
 if __name__ == '__main__':
+    count = 0
     driver = configure_webdriver()
-    parent_url = 'https://proceedings.neurips.cc/paper/2019'
+    parent_url = 'https://proceedings.neurips.cc/paper/2016'
     year = parent_url.split('/')[-1]
 
     pdf_dir = f'./raw-data/{year}/'
@@ -162,6 +162,8 @@ if __name__ == '__main__':
 
         df = pd.DataFrame(row)
         dataframe = dataframe.append(df)
+        count += 1
+        print(count)
         time.sleep(random.randint(1, 5))
 
     print(dataframe.shape)

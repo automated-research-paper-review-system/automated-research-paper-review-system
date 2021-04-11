@@ -3,6 +3,7 @@ from pandas import DataFrame
 from pandas.errors import InvalidIndexError
 import os
 
+
 def read_json(path_to_json):
     df = pd.read_json(path_to_json)
     name = df.iloc[0]['name']
@@ -25,17 +26,19 @@ def read_json(path_to_json):
 def create_dataframe_from_parsed_pdfs():
     rootdir = '/home/kapil/SJSU-Acad/MastersProject/codebase/data'
     columns_list = ["name", "abstractText", "authors", "creator", "emails", "referenceMentions", "references", "title",
-                    "year", " Introduction", " Related Work", " Experiments", " Results", " Conclusion", " Discussion"]
+                    "year", " Introduction", " Related Work", " Experiments", " Results", " Conclusion", " Discussion", "accepted"]
     df = pd.DataFrame(columns=columns_list)
     count = 0
     invalidIndexErrorCount = 0
     indexErrorCount = 0
     for subdir, dirs, files in os.walk(rootdir):
-        if subdir.endswith('train/parsed_pdfs'):
+        if subdir.endswith('/2016/train/parsed_pdfs'):
             for x, y, filenames in os.walk(subdir):
                 for filename in filenames:
                     try:
                         df1 = pd.DataFrame(read_json(subdir + '/' + filename))
+                        if "2019" in subdir or "2020" in subdir or "data/2016" in subdir or "data/2017" in subdir:
+                            df1['accepted'] = True
                         df = df.append(df1[df1.columns & columns_list], ignore_index=True)
                         count += 1
                         print('Added in dataframe: ', count)
