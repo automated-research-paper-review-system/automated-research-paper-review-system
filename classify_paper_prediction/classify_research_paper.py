@@ -12,11 +12,8 @@ from word_embeddings import ELMoEmbedding
 if __name__=="__main__":
     df = create_dataframe_from_parsed_pdfs()
     df = preprocess_dataframe(df)
-    # print(ELMoEmbedding(df['abstractText']))
-    # each_column_word_cloud(df)
     df = doc_to_vec(df)
     SVM_classifier(df)
-    # df = hub_to_vec(df)
     df = tokenize_dataframe(df)
 
     df = create_vectors_dataframe(df)
@@ -30,6 +27,3 @@ if __name__=="__main__":
     final_df = merged_df[merged_df['accepted'].notna()]
     print(len(pd.unique(df['title'])))
     print()
-    # model_elmo = build_model()
-    # model_elmo.summary()
-    # run_model_elmo(df, model_elmo)
