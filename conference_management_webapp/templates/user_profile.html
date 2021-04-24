@@ -15,8 +15,6 @@
                     {% for field in form_fields %}
                         <td>{{ record.get(field.name) }}</td>
                     {% endfor %}
-{#                    <td><a href=" {{ url_for('submit_paper', conference_id=record._id) }}">Submit Paper</a></td>#}
-                    <td><a href="{{ url_for('view_conference', id=record._id) }}">View Details</a></td>
                     <td><a href="{{ url_for('update_conference', id=record._id) }}">Edit</a></td>
                     <td><a href="{{ url_for('delete_conference', id=record._id) }}">Delete</a></td>
                 </tr>

@@ -1,0 +1,49 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="">
+        {% if paper_details %}
+            <h3>Paper Title:</h3>
+            <p>{{ paper_details.get('paper_title') }}</p>
+            <h3>Conference Name:</h3>
+            <p> {{ conference_name }}</p>
+            {% if paper_details.get('Acceptance_Probability') %}
+                <h3>Acceptance Probability: {{ paper_details.get('Acceptance_Probability') }}</h3>
+             {% endif %}
+            <h3>Author Email:</h3>
+            <div>
+                <ul>
+                    {% if paper_details.get('author_email') %}
+{#                        {% for email in paper_details.get('author_id') %}#}
+                        <li>{{ paper_details.get('author_email') }}</li>
+{#                        {% endfor %}#}
+                    {% endif %}
+                </ul>
+            </div>
+            <h3>Abstract:</h3>
+            <p>{{ paper_details.get('abstract') }}</p>
+            <h3>Keywords:</h3>
+            <p>{{ paper_details.get('keywords') }}</p>
+            <h3>Reviewers:</h3>
+            <table border="1px">
+                <thead>
+                <tr>
+                    <td>No.</td>
+                    <td>Reviewer Name</td>
+                    <td>Email</td>
+                    <td>Reviews</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for index in range(0, reviewers_list|length) %}
+                    <tr>
+                        <td>{{ index + 1 }}</td>
+                        <td>{{ reviewers_list[index].get('name') }}</td>
+                        <td>{{ reviewers_list[index].get('reviewer_email') }}</td>
+                        <td><a href="#">View Reviews</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock content %}

@@ -1,11 +1,13 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField, PasswordField, SubmitField, TextAreaField
 from wtforms.fields.html5 import DateField
-from flask_wtf.file import FileField, FileRequired
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
 
 
 class RegistrationForm(FlaskForm):
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password',
@@ -33,10 +35,24 @@ class ConferenceForm(FlaskForm):
 
 class Paper(FlaskForm):
     # view_all_conference
-    # conference_id = StringField('Conference ID', validators=[DataRequired])
+    # conference_id = StringField('Conference ID', validators=[DataRequired()])
     # author_ids = []
-    paper_title = StringField('Paper Title', validators=[DataRequired()])
-    keywords = StringField('Keywords', validators=[DataRequired()])
-    abstract = StringField('Abstract', validators=[DataRequired()])
-    paper = FileField('Paper Document (PDF only)', validators=[FileRequired()])
+    paper_title = TextAreaField('Paper Title', validators=[DataRequired()])
+    keywords = TextAreaField('Keywords', validators=[DataRequired()])
+    abstract = TextAreaField('Abstract', validators=[DataRequired()])
+    # paper = FileField('Paper Document (PDF only)', validators=[FileRequired(), FileAllowed(['pdf'], 'PDF only!')])
+    submit = SubmitField('Submit')
+
+
+class ReviewRequest(FlaskForm):
+    accept = SubmitField('Accept')
+    decline = SubmitField('Decline')
+
+
+class PaperReviewerAssignment(FlaskForm):
+    submit = SubmitField('Submit')
+
+
+class SubmitReview(FlaskForm):
+    review = TextAreaField('Add Review', validators=[DataRequired()])
     submit = SubmitField('Submit')

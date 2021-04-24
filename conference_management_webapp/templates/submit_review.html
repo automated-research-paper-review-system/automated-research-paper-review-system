@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+        <h3>Submit Review for Paper:</h3>
+        <p>{{ paper_record.get('paper_title') }}</p>
+        <h3>Abstract</h3>
+        <p>{{ paper_record.get('abstract') }}</p>
+        <h3>Keywords</h3>
+        <p>{{ paper_record.get('keywords') }}</p>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <h3>{{ form.review.label(class="form-control-label") }}</h3>
+                    {% if form.review.errors %}
+                        {{ form.review(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.review.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.review(class="form-control form-control-lg", id="autosize-abstract") }}
+                    {% endif %}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+        </form>
+    </div>
+    <script src="http://www.jacklmoore.com/js/autosize.min.js"></script>
+    <script>
+        autosize(document.getElementById('autosize-paper-title'));
+        autosize(document.getElementById('autosize-keywords'));
+        autosize(document.getElementById('autosize-abstract'));
+    </script>
+{% endblock content %}

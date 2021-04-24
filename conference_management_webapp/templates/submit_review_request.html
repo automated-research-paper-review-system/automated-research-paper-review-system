@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+        <h3>Accept or Decline Review Request for Paper:</h3>
+        <p>{{ paper_record.get('paper_title') }}</p>
+        <h3>Abstract</h3>
+        <p>{{ paper_record.get('abstract') }}</p>
+        <h3>Keywords</h3>
+        <p>{{ paper_record.get('keywords') }}</p>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.accept(class="btn btn-outline-success") }}
+                {{ form.decline(class="btn btn-outline-danger") }}
+            </div>
+        </form>
+    </div>
+{% endblock content %}
