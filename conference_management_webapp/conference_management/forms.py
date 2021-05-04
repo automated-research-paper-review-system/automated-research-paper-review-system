@@ -25,7 +25,7 @@ class RegistrationForm(FlaskForm):
 class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    role = RadioField('Role', choices=[('AUTHOR', 'Author'), ('REVIEWER', 'Reviewer'), ('EDITOR', 'Editor')],
+    role = RadioField('Role', choices=[('author', 'Author'), ('reviewer', 'Reviewer'), ('editor', 'Editor')],
                       validators=[DataRequired()])
     submit = SubmitField('Login')
 
@@ -60,6 +60,32 @@ class ConferenceForm(FlaskForm):
         if not (self.paper_submission_date.data <= review_submission_date.data <= self.end_date.data):
             raise ValidationError('Please set review submission date >= paper submission date and <= end date.')
 
+class UpdateConferenceForm(FlaskForm):
+    name = StringField('Conference Name', validators=[DataRequired()])
+    start_date = DateField('Conference Start Date', validators=[DataRequired()])
+    end_date = DateField('Conference End Date', validators=[DataRequired()])
+    paper_submission_date = DateField('Paper Submission Date', validators=[DataRequired()])
+    review_submission_date = DateField('Review Submission Date', validators=[DataRequired()])
+    # editor_email = StringField('Creator Email', validators=[Email()])
+    submit = SubmitField('Submit')
+
+    # def validate_start_date(self, start_date):
+    #     if start_date.data < datetime.now().date():
+    #         raise ValidationError('Please set start date greater than or equal to current date.')
+
+    def validate_end_date(self, end_date):
+        if self.start_date.data > end_date.data:
+            raise ValidationError('Please set end date greater than start date.')
+
+    def validate_paper_submission_date(self, paper_submission_date):
+        if not (self.start_date.data <= paper_submission_date.data <= self.end_date.data):
+            raise ValidationError('Please set paper submission date >= start date and <= end date.')
+
+    def validate_review_submission_date(self, review_submission_date):
+        if not (self.paper_submission_date.data <= review_submission_date.data <= self.end_date.data):
+            raise ValidationError('Please set review submission date >= paper submission date and <= end date.')
+
+
 
 # Conference list -> choose conference -> upload paper for that conference id
 class Paper(FlaskForm):
@@ -90,8 +116,8 @@ class SubmitReview(FlaskForm):
 
 
 class SelectConference(FlaskForm):
-    conferences = db.conference.find({'start_date': {'$lte': datetime.now().date().isoformat()},
-                                      'paper_submission_date': {'$gte': datetime.now().date().isoformat()}})
+    conferences = db.conference.find({'start_date': {'$lte': datetime.utcnow().date().isoformat()},
+                                      'paper_submission_date': {'$gte': datetime.utcnow().date().isoformat()}})
     conferences_list = [conference for conference in conferences]
     choices = []
     if conferences_list:
