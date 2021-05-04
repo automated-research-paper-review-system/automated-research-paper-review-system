@@ -48,11 +48,10 @@
 </header>
 <main role="main" class="container">
     <div class="row">
-        {% if session.get('role') == 'EDITOR' %}
+        {% if session.get('role') == 'editor' %}
             <div class="col-md-4">
                 <div class="content-section">
-                    <h3>Our Sidebar</h3>
-                    <p class='text-muted'>You can put any information here you'd like.
+                    <h3>Editor's Explore</h3>
                     <ul class="list-group">
                         <li class="list-group-item list-group-item-light"><a href="{{ url_for('create_conference') }}">Create
                             Conference</a></li>
@@ -63,15 +62,13 @@
                         <li class="list-group-item list-group-item-light"><a href="">View Accepted Papers</a></li>
                         <li class="list-group-item list-group-item-light"><a href="">View Rejected Papers</a></li>
                     </ul>
-                    </p>
                 </div>
             </div>
         {% endif %}
-        {% if session.get('role') == 'REVIEWER' %}
+        {% if session.get('role') == 'reviewer' %}
             <div class="col-md-4">
                 <div class="content-section">
-                    <h3>Our Sidebar</h3>
-                    <p class='text-muted'>You can put any information here you'd like.
+                    <h3>Reviewer's Explore</h3>
                     <ul class="list-group">
                         <li class="list-group-item list-group-item-light"><a href="{{ url_for('conference') }}">View
                             Conferences</a></li>
@@ -87,11 +84,10 @@
                             Declined Review Requests</a>
                         </li>
                     </ul>
-                    </p>
                 </div>
             </div>
         {% endif %}
-        {% if session.get('role') == 'AUTHOR' %}
+        {% if session.get('role') == 'author' %}
             <div class="col-md-4">
                 <div class="content-section">
                     <h3>Author's Explore</h3>

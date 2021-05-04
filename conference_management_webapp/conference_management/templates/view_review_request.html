@@ -1,31 +1,46 @@
 {% extends 'layout.html' %}
 {% block content %}
     <div class="container">
-            <table class="table table-hover">
+        <h4>{{ title }}</h4>
+        <table class="table table-hover">
             <thead>
-                <tr>
-                    <th>Conference Name</th>
-                    <th>Paper Title</th>
-                    <th>Review Submission Date</th>
-                    <th>Options</th>
-                </tr>
+            <tr>
+                <th>Conference Name</th>
+                <th>Paper Title</th>
+                <th>Review Submission Date</th>
+                <th>Options</th>
+            </tr>
             </thead>
-        <tbody>
+            <tbody>
             {% for record in review_requests %}
                 <tr>
                     <td>{{ record.get('conference_name') }}</td>
                     <td>{{ record.get('paper_title') }}</td>
                     <td>{{ record.get('review_submission_date') }}</td>
                     {% if request_status == 'accepted' %}
-                        <td><a href="{{ url_for('submit_review', reviewer_id=record.reviewer_id, paper_id=record.paper_id) }}">Add Review</a></td>
+                        {% if record.get('add_review') %}
+                            <td>
+                                <a href="{{ url_for('submit_review', reviewer_id=record.reviewer_id, paper_id=record.paper_id) }}">Add
+                                    Review
+                                </a>
+                            </td>
+                            {% else %}
+                            <td class="text-muted">
+                                Add Review
+                            </td>
+                        {% endif %}
                     {% elif request_status == 'declined' %}
-                        <td class="text-muted">Declined</td>
+                        <td class="text-muted danger">Declined</td>
                     {% else %}
-                        <td><a href="{{ url_for('review_request', reviewer_id=record.reviewer_id, paper_id=record.paper_id) }}">View Request</a></td>
+                        <td>
+                            <a href="{{ url_for('review_request', reviewer_id=record.reviewer_id, paper_id=record.paper_id) }}">View
+                                Request
+                            </a>
+                        </td>
                     {% endif %}
                 </tr>
             {% endfor %}
-        </tbody>
+            </tbody>
         </table>
     </div>
 {% endblock content %}

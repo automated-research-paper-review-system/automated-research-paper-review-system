@@ -3,23 +3,27 @@
     <div class="">
         <table class="table table-hover">
             <thead>
-                <tr>
-                    {% for field in form_fields %}
-                        <th>{{ field.label }}</th>
-                    {% endfor %}
-                </tr>
+            <tr>
+                {% for field in form_fields %}
+                    <th>{{ field.label }}</th>
+                {% endfor %}
+            </tr>
             </thead>
-        <tbody>
+            <tbody>
             {% for record in conference_list %}
                 <tr>
                     {% for field in form_fields %}
                         <td>{{ record.get(field.name) }}</td>
                     {% endfor %}
-{#                    <td><a href="{{ url_for('view_conference', id=record._id) }}">View Details</a></td>#}
-                    <td><a href="{{ url_for('upload_paper', conference_id=record._id) }}">Submit Paper</a></td>
+                    {# <td><a href="{{ url_for('view_conference', id=record._id) }}">View Details</a></td>#}
+                    {% if record.get('submit_paper') %}
+                        <td><a href="{{ url_for('upload_paper', conference_id=record._id) }}">Submit Paper</a></td>
+                    {% else %}
+                        <td class="text-muted">Submit Paper</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
-        </tbody>
+            </tbody>
         </table>
     </div>
 {% endblock content %}

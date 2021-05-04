@@ -1,16 +1,29 @@
 {% extends 'layout.html' %}
 {% block content %}
-    <div class="container">
-        <h3>Submit Review for Paper:</h3>
-        <p>{{ paper_record.get('paper_title') }}</p>
-        <h3>Abstract</h3>
-        <p>{{ paper_record.get('abstract') }}</p>
-        <h3>Keywords</h3>
-        <p>{{ paper_record.get('keywords') }}</p>
-        <form method="post">
-            {{ form.hidden_tag() }}
-            <div class="form-group">
-                <h3>{{ form.review.label(class="form-control-label") }}</h3>
+    {% if paper_record %}
+        <div class="container">
+            <h3>Submit Review for Paper:</h3>
+            <p>{{ paper_record.get('paper_title') }}</p>
+            <h3>Abstract</h3>
+            <p>{{ paper_record.get('abstract') }}</p>
+            <h3>Keywords</h3>
+            <p>{{ paper_record.get('keywords') }}</p>
+            <h3>Paper PDF link</h3>
+            <p><a href="{{ paper_record.get('s3_url') }}" target="_blank">Click here to view the submitted paper</a></p>
+            <h3>View Submitted Reviews</h3>
+            {% if reviews %}
+                {% for review_record in reviews %}
+                    <div style="border: 2px solid #dedede; background-color: #f1f1f1; border-radius: 5px; padding: 10px; margin: 10px 0;">
+                        <p>{{ review_record.get('review') }}</p>
+                    </div>
+                    <div style="color: #aaa;">{{ review_record.get('created_when') }}</div>
+                {% endfor %}
+            {% endif %}
+            <br/>
+            <form method="post">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <h3>{{ form.review.label(class="form-control-label") }}</h3>
                     {% if form.review.errors %}
                         {{ form.review(class="form-control form-control-lg is-invalid") }}
                         <div class="invalid-feedback">
@@ -21,12 +34,13 @@
                     {% else %}
                         {{ form.review(class="form-control form-control-lg", id="autosize-abstract") }}
                     {% endif %}
-            </div>
-            <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
-            </div>
-        </form>
-    </div>
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-outline-info") }}
+                </div>
+            </form>
+        </div>
+    {% endif %}
     <script src="http://www.jacklmoore.com/js/autosize.min.js"></script>
     <script>
         autosize(document.getElementById('autosize-paper-title'));

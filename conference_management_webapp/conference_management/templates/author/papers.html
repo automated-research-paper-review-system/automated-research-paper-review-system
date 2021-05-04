@@ -5,13 +5,10 @@
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <td>No.</td>
-                    <td>Paper Title</td>
-                    <td>Abstract</td>
-                    <td>Status</td>
-{#                {% if papers_list %}#}
-{#                    #}
-{#                {% endif %}#}
+                    <th>No.</th>
+                    <th>Paper Title</th>
+                    <th>Abstract</th>
+                    <th>Status</th>
                 </tr>
             </thead>
         <tbody>
@@ -21,7 +18,7 @@
                     <td>{{ papers_list[index].get('paper_title') }}</td>
                     <td>{{ papers_list[index].get('abstract') }}</td>
                     <td>{{ papers_list[index].get('paper_status') }}</td>
-                    <td><a href="{{ url_for('view_paper', id=papers_list[index].get('_id')) }}">View Details</a></td>
+{#                    <td><a href="{{ url_for('view_paper', id=papers_list[index].get('_id')) }}">View Details</a></td>#}
                 </tr>
             {% endfor %}
         </tbody>

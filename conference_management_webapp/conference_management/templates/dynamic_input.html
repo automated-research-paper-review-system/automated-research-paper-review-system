@@ -1,45 +1,47 @@
 {% extends 'layout.html' %}
 {% block content %}
-<script>
-    function add_field() {
-        var total_text = document.getElementsByClassName("input_text");
-        total_text = total_text.length + 1;
-        field_div = document.getElementById("field_div");
-        new_input = "<li id='input_text" + total_text + "_wrapper'>";
-        new_input += "<input type='email' class='input_text' name='input_text[]' id='input_text" +
-            total_text + "' placeholder='Enter Reviewer Email'>";
-        {#new_input += "<input type='checkbox' name='input_checkbox' value='" + total_text + "' id='input_checkbox" +#}
-        {#    total_text + "'";#}
-        new_input += "</li>";
-        field_div.insertAdjacentHTML('beforeend', new_input);
-    }
+    <script>
+        function add_field() {
+            var total_text = document.getElementsByClassName("input_text form-control form-control-lg");
+            total_text = total_text.length + 1;
+            field_div = document.getElementById("field_div");
+            new_input = "<li id='input_text" + total_text + "_wrapper'>";
+            new_input += "<input type='email' class='input_text form-control form-control-lg' name='input_text[]' id='input_text" +
+                total_text + "' placeholder='Enter Reviewer Email'>";
+            {#new_input += "<input type='checkbox' name='input_checkbox' value='" + total_text + "' id='input_checkbox" +#}
+            {#    total_text + "'";#}
+            new_input += "</li>";
+            field_div.insertAdjacentHTML('beforeend', new_input);
+        }
 
-    function remove_field() {
-        var total_text = document.getElementsByClassName("input_text");
-        document.getElementById("input_text" + total_text.length + "_wrapper").remove();
-    }
-</script>
+        function remove_field() {
+            var total_text = document.getElementsByClassName("input_text form-control form-control-lg");
+            document.getElementById("input_text" + total_text.length + "_wrapper").remove();
+        }
+    </script>
 
-<div class="container">
-    <h3>Assign Reviewers for Paper:</h3>
-    <p>{{ paper_record.get('paper_title') }}</p>
-    <h3>Abstract</h3>
-    <p>{{ paper_record.get('abstract') }}</p>
-    <h3>Keywords</h3>
-    <p>{{ paper_record.get('keywords') }}</p>
-    <form action='{{ url_for('results', paper_id=paper_record.get('_id')) }}' method="post">
-        <div id="wrapper">
-            <input type="button" value="Add Reviewer" onclick="add_field();">
-            <input type="button" value="Remove Reviewer" onclick="remove_field();">
-            <br>
-            <ol id="field_div">
-                <li id='input_text" + total_text + "_wrapper'>
-                    <input type='email' class='input_text' name='input_text[]' id='input_text0'
-                           placeholder='Enter Reviewer Email' required>
-                </li>
-            </ol>
-        </div>
-        <input type='submit' value='Submit'>
-    </form>
-</div>
+    <div class="container">
+        <h3>Assign Reviewers for Paper:</h3>
+        <p>{{ paper_record.get('paper_title') }}</p>
+        <h3>Abstract</h3>
+        <p>{{ paper_record.get('abstract') }}</p>
+        <h3>Keywords</h3>
+        <p>{{ paper_record.get('keywords') }}</p>
+        <form action='{{ url_for('results', paper_id=paper_record.get('_id')) }}' method="post">
+            <div id="wrapper">
+                <div class="form-group">
+                    <input type="button" value="Add Reviewer" onclick="add_field();" class="btn btn-outline-success">
+                    <input type="button" value="Remove Reviewer" onclick="remove_field();" class="btn btn-outline-danger">
+                </div>
+                <ol id="field_div">
+                    <li id='input_text" + total_text + "_wrapper'>
+                        <input type='email' class='input_text form-control form-control-lg' name='input_text[]'
+                               id='input_text0'
+                               placeholder='Enter Reviewer Email' required>
+                    </li>
+                </ol>
+            </div>
+            <input type='submit' value='Submit' class="btn btn-outline-info">
+        </form>
+    </div>
 {% endblock content %}
