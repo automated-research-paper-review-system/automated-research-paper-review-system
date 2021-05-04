@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+        <h3>Reviews for paper: {{ paper_title }}</h3>
+        {% if reviews %}
+            {% for review_record in reviews %}
+                <div style="border: 2px solid #dedede; background-color: #f1f1f1; border-radius: 5px; padding: 10px; margin: 10px 0;">
+                    <p>{{ review_record.get('review') }}</p>
+                </div>
+                <div style="color: #aaa;">{{ review_record.get('created_when') }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endblock content %}

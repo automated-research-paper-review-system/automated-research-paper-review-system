@@ -1,0 +1,31 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="">
+        <h2>Submissions</h2>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <td>No.</td>
+                    <td>Paper Title</td>
+                    <td>Abstract</td>
+                    <td>Status</td>
+{#                {% if papers_list %}#}
+{#                    #}
+{#                {% endif %}#}
+                </tr>
+            </thead>
+        <tbody>
+            {% for index in range(0, papers_list|length) %}
+                <tr>
+                    <td>{{ index + 1 }}</td>
+                    <td>{{ papers_list[index].get('paper_title') }}</td>
+                    <td>{{ papers_list[index].get('abstract') }}</td>
+                    <td>{{ papers_list[index].get('paper_status') }}</td>
+                    <td><a href="{{ papers_list[index].get('s3_url') }}">View PDF</a></td>
+                    <td><a href="{{ url_for('view_paper', id=papers_list[index].get('_id')) }}">View Details</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+    </div>
+{% endblock content %}

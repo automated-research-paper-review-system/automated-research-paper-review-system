@@ -41,18 +41,18 @@ user = [
         # ],
         'role_type': {
             'author': [
-                    {
-                        'paper_id': ''
-                    }
-                ],
+                {
+                    'paper_id': ''
+                }
+            ],
             'reviewer': [
-                    {
-                        'paper_id': '',
-                        'review_status': ''
-                    }
-                ],
+                {
+                    'paper_id': '',
+                    'review_status': ''
+                }
+            ],
             'editor': {}
-            },
+        },
         'created_when': '',
         'updated_when': ''
     }
@@ -123,3 +123,13 @@ paper = [
 # {'first_name': 'Karnavee', 'last_name': 'Kamdar', 'email': 'karnavee.kamdar@sjsu.edu', 'password': 'password', 'role_type': {'author': [], 'reviewer': [], 'editor': False}}
 
 # db.paper.update_one({'_id': ObjectId('60847527242c50912306639a'), 'reviewer_assignment.reviewer_id': 2}, {'$addToSet': {'reviewer_assignment.$.reviews': {'review': 'first review', 'aspect_score': {'impact': 5, 'clarity': 4}}}})
+
+# db.user.create_index("email")
+# db.conference.create_index('name')
+
+# to remove an object with specified reviewer_id
+# db.paper.update_one({'_id': ObjectId('60847527242c50912306639a')},{'$pull': {'reviewer_assignment':
+# {'reviewer_id': ObjectId('60848855229a4fedb06f954f')}}})
+
+# db.user.update_one(reviewer_filter, {'$pull': {
+#         'role_type.reviewer': {'paper_id': ObjectId('60847527242c50912306639a'), 'review_status': 'Review Requested'}}})

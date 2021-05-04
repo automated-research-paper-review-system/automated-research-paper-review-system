@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="content-section">
+        <form method="post" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4">Select Conference</legend>
+                <div class="form-group">
+                    {{ form.conference_id.label(class="form-control-label") }}
+                    {% if form.conference_id.errors %}
+                        {{ form.conference_id(class="form-control form-control-lg is-invalid", style="list-style:none") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.conference_id.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.conference_id(class="form-control form-control-lg", style="list-style:none") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-outline-info") }}
+                </div>
+            </fieldset>
+        </form>
+{% endblock content %}
