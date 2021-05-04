@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="">
+        {% if paper_details %}
+            <h3>Paper Title:</h3>
+            <p>{{ paper_details.get('paper_title') }}</p>
+            <h3>Conference Name:</h3>
+            <p> {{ conference_name }}</p>
+            {% if paper_details.get('Acceptance_Probability') %}
+                <h3>Acceptance Probability: {{ paper_details.get('Acceptance_Probability') }}</h3>
+            {% endif %}
+            <h3>Author Email:</h3>
+            <div>
+                <ul>
+                    {% if paper_details.get('author_email') %}
+                        {#                        {% for email in paper_details.get('author_id') %}#}
+                        <li>{{ paper_details.get('author_email') }}</li>
+                        {#                        {% endfor %}#}
+                    {% endif %}
+                </ul>
+            </div>
+            <h3>Abstract:</h3>
+            <p>{{ paper_details.get('abstract') }}</p>
+            <h3>Keywords:</h3>
+            <p>{{ paper_details.get('keywords') }}</p>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Paper PDF link</th>
+                    <th>Paper Status</th>
+                    <th>Paper Submission Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><a href="{{ paper_details.get('s3_url') }}" target="_blank">Click here to view the paper</a>
+                    </td>
+                    <td>{{ paper_details.get('paper_status') }}</td>
+                    <td>{{ paper_details.get('submission_datetime', '') }}</td>
+                </tr>
+                </tbody>
+            </table>
+            <br/>
+
+            {% if reviewers_list %}
+                <div style="font-size: 1.75rem; font-weight: 500">
+                    Reviewers:
+                    {% if paper_details.get('paper_status') != 'Accepted' and paper_details.get('paper_status') != 'Rejected' %}
+                        <input type="button" value="Assign Reviewers" class="btn btn-info"
+                               style="float: right;">
+                    {% endif %}
+                </div>
+
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Reviewer Name</th>
+                        <th>Email</th>
+                        <th>Reviews</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for index in range(0, reviewers_list|length) %}
+                        <tr>
+                            <td>{{ index + 1 }}</td>
+                            <td>{{ reviewers_list[index].get('name') }}</td>
+                            <td>{{ reviewers_list[index].get('reviewer_email') }}</td>
+                            <td>
+                                <a href="{{ url_for('view_review', reviewer_id=reviewers_list[index].get('reviewer_id'), paper_id=paper_details.get('_id')) }}"
+                                   target="_blank">View
+                                    Reviews</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+            {% if paper_details.get('paper_status') != 'Accepted' and paper_details.get('paper_status') != 'Rejected' %}
+                <form action='{{ url_for('paper_publish_request', paper_id=paper_details.get('_id')) }}'
+                      method="post">
+                    {#                {{ form.hidden_tag() }} #}
+                    {# commented to avoid passing form variable for author and reviewer #}
+                    <div class="form-group">
+                        <input type="submit" name="Accepted" value="Accepted" class="btn btn-outline-success">
+                        <input type="submit" name="Rejected" value="Rejected" class="btn btn-outline-danger">
+                    </div>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock content %}

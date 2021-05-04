@@ -27,11 +27,40 @@
         <p>{{ paper_record.get('abstract') }}</p>
         <h3>Keywords</h3>
         <p>{{ paper_record.get('keywords') }}</p>
-        <form action='{{ url_for('results', paper_id=paper_record.get('_id')) }}' method="post">
+        {% if reviewers_list %}
+            <h3>Assigned Reviewers:</h3>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Reviewer Name</th>
+                    <th>Email</th>
+                    <th>Reviews</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for index in range(0, reviewers_list|length) %}
+                    <tr>
+                        <td>{{ index + 1 }}</td>
+                        <td>{{ reviewers_list[index].get('name') }}</td>
+                        <td>{{ reviewers_list[index].get('reviewer_email') }}</td>
+                        <td>
+                            <a href="{{ url_for('view_review', reviewer_id=reviewers_list[index].get('reviewer_id'), paper_id=paper_record.get('_id')) }}"
+                               target="_blank">View
+                                Reviews</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        <form action='{{ url_for('paper_reviewer_assignment', paper_id=paper_record.get('_id')) }}' method="post">
+            {{ form.hidden_tag() }}
             <div id="wrapper">
                 <div class="form-group">
-                    <input type="button" value="Add Reviewer" onclick="add_field();" class="btn btn-outline-success">
-                    <input type="button" value="Remove Reviewer" onclick="remove_field();" class="btn btn-outline-danger">
+                    <input type="button" value="Add Reviewer Textbox" onclick="add_field();"
+                           class="btn btn-outline-success">
+                    <input type="button" value="Remove Reviewer Textbox" onclick="remove_field();"
+                           class="btn btn-outline-danger">
                 </div>
                 <ol id="field_div">
                     <li id='input_text" + total_text + "_wrapper'>

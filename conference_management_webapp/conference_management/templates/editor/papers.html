@@ -4,14 +4,14 @@
         <h2>Conference Name: {{ conference_name }}</h2>
         <table class="table table-hover">
             <thead>
-                <tr>
-                    <th>No.</th>
-                    <th>Paper Title</th>
-                    <th>Abstract</th>
-                    <th>Status</th>
-                </tr>
+            <tr>
+                <th>No.</th>
+                <th>Paper Title</th>
+                <th>Abstract</th>
+                <th>Status</th>
+            </tr>
             </thead>
-        <tbody>
+            <tbody>
             {% for index in range(0, papers_list|length) %}
                 <tr>
                     <td>{{ index + 1 }}</td>
@@ -19,9 +19,16 @@
                     <td>{{ papers_list[index].get('abstract') }}</td>
                     <td>{{ papers_list[index].get('paper_status') }}</td>
                     <td><a href="{{ url_for('view_paper', id=papers_list[index].get('_id')) }}">View Details</a></td>
+                    {% if papers_list[index].get('paper_status') != 'Accepted' and papers_list[index].get('paper_status') != 'Rejected' %}
+                        <td>
+                            <a href="{{ url_for('paper_reviewer_assignment', paper_id=papers_list[index].get('_id')) }}">Assign
+                                Reviewers</a></td>
+                    {% else %}
+                        <td class="text-muted">Assign Reviewers</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
-        </tbody>
+            </tbody>
         </table>
     </div>
 {% endblock content %}

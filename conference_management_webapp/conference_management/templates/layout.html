@@ -58,9 +58,9 @@
                         <li class="list-group-item list-group-item-light"><a href="{{ url_for('conference') }}">View
                             Conferences</a></li>
                         <li class="list-group-item list-group-item-light"><a href="">View Reviewers</a></li>
-                        <li class="list-group-item list-group-item-light"><a href="">View New/Under-Review Papers</a></li>
-                        <li class="list-group-item list-group-item-light"><a href="">View Accepted Papers</a></li>
-                        <li class="list-group-item list-group-item-light"><a href="">View Rejected Papers</a></li>
+                        <li class="list-group-item list-group-item-light"><a href="{{ url_for('view_papers_by_status', paper_status='New') }}">View New/Under-Review Papers</a></li>
+                        <li class="list-group-item list-group-item-light"><a href="{{ url_for('view_papers_by_status', paper_status='Accepted') }}">View Accepted Papers</a></li>
+                        <li class="list-group-item list-group-item-light"><a href="{{ url_for('view_papers_by_status', paper_status='Rejected') }}">View Rejected Papers</a></li>
                     </ul>
                 </div>
             </div>

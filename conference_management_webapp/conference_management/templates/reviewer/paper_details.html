@@ -1,0 +1,70 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="">
+        {% if paper_details %}
+            <h3>Paper Title:</h3>
+            <p>{{ paper_details.get('paper_title') }}</p>
+            <h3>Conference Name:</h3>
+            <p> {{ conference_name }}</p>
+            {% if paper_details.get('Acceptance_Probability') %}
+                <h3>Acceptance Probability: {{ paper_details.get('Acceptance_Probability') }}</h3>
+            {% endif %}
+            <h3>Author Email:</h3>
+            <div>
+                <ul>
+                    {% if paper_details.get('author_email') %}
+                        {#                        {% for email in paper_details.get('author_id') %}#}
+                        <li>{{ paper_details.get('author_email') }}</li>
+                        {#                        {% endfor %}#}
+                    {% endif %}
+                </ul>
+            </div>
+            <h3>Abstract:</h3>
+            <p>{{ paper_details.get('abstract') }}</p>
+            <h3>Keywords:</h3>
+            <p>{{ paper_details.get('keywords') }}</p>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Paper PDF link</th>
+                    <th>Paper Status</th>
+                    <th>Paper Submission Date</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td><a href="{{ paper_details.get('s3_url') }}" target="_blank">Click here to view the paper</a></td>
+                    <td>{{ paper_details.get('paper_status') }}</td>
+                    <td>{{ paper_details.get('submission_datetime', '') }}</td>
+                </tr>
+                </tbody>
+            </table>
+            <br/>
+            {% if reviewers_list %}
+                <h3>Reviewers:</h3>
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Reviewer Name</th>
+                        <th>Email</th>
+                        <th>Reviews</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for index in range(0, reviewers_list|length) %}
+                        <tr>
+                            <td>{{ index + 1 }}</td>
+                            <td>{{ reviewers_list[index].get('name') }}</td>
+                            <td>{{ reviewers_list[index].get('reviewer_email') }}</td>
+                            <td>
+                                <a href="{{ url_for('view_review', reviewer_id=reviewers_list[index].get('reviewer_id'), paper_id=paper_details.get('_id')) }}" target="_blank">View
+                                    Reviews</a></td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock content %}
