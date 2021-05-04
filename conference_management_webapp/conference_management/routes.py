@@ -228,6 +228,18 @@ def view_conference(id):
                            conference_name=conference_name)
 
 
+def get_assigned_reviewers_list(reviewers_list):
+    if reviewers_list:
+        for reviewer in reviewers_list:
+            reviewer_record = db.user.find_one({'_id': reviewer.get('reviewer_id')})
+            if reviewer_record:
+                reviewer['name'] = reviewer_record.get('first_name', '') + ' ' + reviewer_record.get('last_name', '')
+                reviewer['reviewer_email'] = reviewer_record.get('email')
+    else:
+        reviewers_list = []
+    return reviewers_list
+
+
 @app.route('/paper/view/<id>/', methods=['GET', 'POST'])
 @login_required
 def view_paper(id):
@@ -242,17 +254,8 @@ def view_paper(id):
         if conference_record:
             conference_name = conference_record.get('name')
         reviewers_list = paper_details.get('reviewer_assignment')
-        if reviewers_list:
-            for reviewer in reviewers_list:
-                reviewer_record = db.user.find_one({'_id': reviewer.get('reviewer_id')})
-                if reviewer_record:
-                    reviewer['name'] = reviewer_record.get('first_name') if reviewer_record.get(
-                        'first_name') else '' + ' ' + \
-                                           reviewer_record.get('last_name') if reviewer_record.get('last_name') else ''
-                    reviewer['reviewer_email'] = reviewer_record.get('email')
-        else:
-            reviewers_list = []
-    return render_template('paper_details.html', conference_name=conference_name, paper_details=paper_details,
+        reviewers_list = get_assigned_reviewers_list(reviewers_list)
+    return render_template(f"{session['role']}/paper_details.html", conference_name=conference_name, paper_details=paper_details,
                            reviewers_list=reviewers_list)
 
 
@@ -445,13 +448,21 @@ def view_papers_by_user_id(user_id):
 
 @app.route('/submit/reviewer/<paper_id>/', methods=['GET', 'POST'])
 @login_required
-def results(paper_id):
+def paper_reviewer_assignment(paper_id):
+    if session['role'] != 'editor':
+        abort(403)
     form = PaperReviewerAssignment()
+    paper_record = db.paper.find_one({'_id': ObjectId(paper_id)})
+    reviewers_list = []
+    if not paper_record:
+        abort(404, description='No such paper found')
+
+    if 'reviewer_assignment' in paper_record and paper_record['reviewer_assignment']:
+        reviewers_list = get_assigned_reviewers_list(paper_record['reviewer_assignment'])
+
     if request.method == 'GET':
-        # get paper document from the database and pass it in place of paper_id
-        paper_record = db.paper.find_one({'_id': ObjectId(paper_id)})
         # display paper name in place of paper_id, authors and abstract to the editor
-        return render_template('dynamic_input.html', paper_record=paper_record)
+        return render_template('dynamic_input.html', paper_record=paper_record, form=form, reviewers_list=reviewers_list)
     else:
         reviewer_emails = request.form.getlist('input_text[]')
         reviewer_ids = []
@@ -620,22 +631,29 @@ def submit_review(reviewer_id, paper_id):
 
     if form.validate_on_submit():
         # make api call
+        # url = '/getAspectScores'
+        # response = requests.post(url, json={'id': reviewer_id, 'review': form.review.data}).json()
         # get impact and clarity
+        # if response.status_code != 200:
+        #     print('aspect_scores api error:', response.status_code)
+        #     abort(500)
+        # aspect_scores = response['aspect_scores']  # {'impact': 5, 'clarity': 4}
+        aspect_scores = {'impact': 5, 'clarity': 4}
         created_when = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
         db.paper.update_one(paper_filter, {
             '$addToSet': {'reviewer_assignment.$.reviews': {'review': form.review.data,
-                                                            'aspect_score': {'impact': 5, 'clarity': 4},
+                                                            'aspect_score': aspect_scores,
                                                             'created_when': created_when}}})
         reviews.append({'review': form.review.data, 'created_when': created_when})
         flash('Submitted Review!', 'success')
         form.review.data = ''
-        # return redirect(url_for('view_review_request', reviewer_id=reviewer_id))
     return render_template('submit_review.html', form=form, paper_record=paper_record, reviews=reviews)
 
 
 @app.route('/view/review/<reviewer_id>/paper/<paper_id>/', methods=['GET', 'POST'])
 @login_required
 def view_review(reviewer_id, paper_id):
+    # visible to paper author and editors only
     paper_filter = {'_id': ObjectId(paper_id), 'reviewer_assignment.reviewer_id': ObjectId(reviewer_id)}
     reviews = []
     review_record = db.paper.find_one(paper_filter, {'reviewer_assignment': 1, 'paper_title': 1})
@@ -648,5 +666,42 @@ def view_review(reviewer_id, paper_id):
                        and reviewer_dictionary.get('reviews')]
             if reviews:
                 reviews = reviews[0]
-            # print(reviews)
     return render_template(f"{session['role']}/view_review.html", reviews=reviews, paper_title=paper_title)
+
+
+@app.route('/view/papers/<paper_status>/', methods=['GET'])
+@login_required
+def view_papers_by_status(paper_status):
+    title = 'View New/Under-Review Papers'
+    filtered_fields = {'conference_id': 1, 'paper_title': 1, 'paper_status': 1, 's3_url': 1}
+    if paper_status.lower() == 'accepted':
+        title = 'View Accepted Papers'
+        papers = db.paper.find({'paper_status': 'Accepted'}, filtered_fields).sort('submission_datetime', -1)
+    elif paper_status.lower() == 'rejected':
+        title = 'View Rejected Papers'
+        papers = db.paper.find({'paper_status': 'Rejected'}, filtered_fields).sort('submission_datetime', -1)
+    else:
+        papers = db.paper.find({'paper_status': {'$nin': ['Accepted', 'Rejected']}}, filtered_fields).sort('submission_datetime', -1)
+    conferences = db.conference.find({}, {'name': 1})
+    conferences_dictionary = {conference['_id']: conference['name'] for conference in conferences}
+    papers_list = []
+    for paper in papers:
+        conference_id = paper.get('conference_id')
+        if conference_id and conference_id in conferences_dictionary:
+            paper['conference_name'] = conferences_dictionary[conference_id]
+            papers_list.append(paper)
+    return render_template(f"{session['role']}/view_papers_by_status.html", title=title, papers_list=papers_list)
+
+
+@app.route('/paper/publish-request/<paper_id>/', methods=['POST'])
+def paper_publish_request(paper_id):
+    paper_status = ''
+    if session['role'] != 'editor':
+        abort(403, description='Endpoint forbidden')
+    if 'Accepted' in request.form:
+        paper_status = 'Accepted'
+    elif 'Rejected' in request.form:
+        paper_status = 'Rejected'
+    if paper_status:
+        db.paper.update_one({'_id': ObjectId(paper_id)}, {'$set': {'paper_status': paper_status}})
+    return redirect(url_for('view_paper', id=paper_id))
