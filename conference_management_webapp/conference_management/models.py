@@ -101,8 +101,7 @@ paper = [
                 ]
             }
         ],
-        'created_when': '',
-        'updated_when': ''
+        'submission_datetime': ''
     }
 ]
 
