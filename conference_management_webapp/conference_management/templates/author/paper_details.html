@@ -46,8 +46,8 @@
                     <thead>
                     <tr>
                         <th>No.</th>
-                        <th>Reviewer Name</th>
-                        <th>Email</th>
+{#                        <th>Reviewer Name</th>#}
+{#                        <th>Email</th>#}
                         <th>Reviews</th>
                     </tr>
                     </thead>
@@ -55,11 +55,11 @@
                     {% for index in range(0, reviewers_list|length) %}
                         <tr>
                             <td>{{ index + 1 }}</td>
-                            <td>{{ reviewers_list[index].get('name') }}</td>
-                            <td>{{ reviewers_list[index].get('reviewer_email') }}</td>
+{#                            <td>{{ reviewers_list[index].get('name') }}</td>#}
+{#                            <td>{{ reviewers_list[index].get('reviewer_email') }}</td>#}
                             <td>
                                 <a href="{{ url_for('view_review', reviewer_id=reviewers_list[index].get('reviewer_id'), paper_id=paper_details.get('_id')) }}" target="_blank">View
-                                    Reviews</a></td>
+                                    Reviews from Reviewer {{ index }}</a></td>
                         </tr>
                     {% endfor %}
                     </tbody>
