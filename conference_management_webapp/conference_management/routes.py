@@ -626,6 +626,29 @@ def review_request(reviewer_id, paper_id):
     return render_template('submit_review_request.html', paper_record=paper_record, form=form)
 
 
+def get_aspect_scores(reviewer_id, review):
+    aspect_scores = {}
+    try:
+        url = 'http://localhost:8081/getAspectScores'
+        response = requests.post(url, json={'id': reviewer_id, 'review': review}).json()
+        # get impact and clarity
+        # if response.status_code != 200:
+        #     print('aspect_scores api error:', response.status_code)
+        #     abort(500)
+        if 'impact' in response:
+            aspect_scores['impact'] = response['impact']
+        if 'clarity' in response:
+            aspect_scores['clarity'] = response.get('clarity')
+        if 'technical_soundness' in response:
+            aspect_scores['technical_soundness'] = response['technical_soundness']
+        if 'originality' in response:
+            aspect_scores['originality'] = response['originality']
+    except Exception as e:
+        print('Error occurred when calling aspect scores api:', e)
+    finally:
+        return aspect_scores
+
+
 @app.route('/submit/review/<reviewer_id>/paper/<paper_id>/', methods=['GET', 'POST'])
 @login_required
 def submit_review(reviewer_id, paper_id):
@@ -654,17 +677,7 @@ def submit_review(reviewer_id, paper_id):
 
     if form.validate_on_submit():
         # make api call
-        url = 'http://localhost:8081/getAspectScores'
-        response = requests.post(url, json={'id': reviewer_id, 'review': form.review.data}).json()
-        # get impact and clarity
-        # if response.status_code != 200:
-        #     print('aspect_scores api error:', response.status_code)
-        #     abort(500)
-        impact = response.get('impact')
-        clarity = response.get('clarity')
-        # aspect_scores = response['aspect_scores']  # {'impact': 5, 'clarity': 4}
-        aspect_scores = {'impact': impact, 'clarity': clarity}
-        aspect_scores = {'impact': 5, 'clarity': 4}
+        aspect_scores = get_aspect_scores(reviewer_id, form.review.data)
         created_when = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
         db.paper.update_one(paper_filter, {
             '$addToSet': {'reviewer_assignment.$.reviews': {'review': form.review.data,
