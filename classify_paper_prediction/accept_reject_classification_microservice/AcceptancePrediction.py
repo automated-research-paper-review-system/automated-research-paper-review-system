@@ -57,4 +57,4 @@ class AcceptancePrediction:
         else:
             prediction = "False"
 
-        return {"accepted": prediction, "Acceptance_Probability": percentage}
+        return {"accepted": prediction, "Acceptance_Probability": round(percentage,2)}
