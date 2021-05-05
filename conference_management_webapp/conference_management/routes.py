@@ -88,12 +88,13 @@ def register():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         db.user.insert_one({
             'email': form.email.data,
-            'first_name': form.first_name.data,
-            'last_name': form.last_name.data,
+            # 'first_name': form.first_name.data,
+            # 'last_name': form.last_name.data,
+            'name': form.name.data,
             'password': hashed_password,
             'role_type': {
                 'author': [],
-                'reviewer': [],
+                'reviewer': False,
                 'editor': False
             }
         })
@@ -105,17 +106,17 @@ def register():
 @app.route('/login/', methods=['GET', 'POST'])
 def login():
     if session.get('is_authenticated', None):
-        return redirect(url_for('home'))
+        return redirect(url_for('conference'))
     form = LoginForm()
     if form.validate_on_submit():
-        user = db.user.find_one({'email': form.email.data})
+        user = db.user.find_one({'email': form.email.data, f"role_type.{form.role.data}": {'$ne': False}})
         if user and bcrypt.check_password_hash(user.get('password'), form.password.data):
             session['role'] = form.role.data
             session['user_id'] = str(user.get('_id'))
             session['is_authenticated'] = True
             next_url = request.form.get("next")
             flash('You have been logged in!', 'success')
-            return redirect(next_url) if next_url else redirect(url_for('home'))
+            return redirect(next_url) if next_url else redirect(url_for('conference'))
         else:
             flash('Login Unsuccessful. Please enter correct email address and password.', 'danger')
     return render_template('login.html', title='Login', form=form)
@@ -233,7 +234,8 @@ def get_assigned_reviewers_list(reviewers_list):
         for reviewer in reviewers_list:
             reviewer_record = db.user.find_one({'_id': reviewer.get('reviewer_id')})
             if reviewer_record:
-                reviewer['name'] = reviewer_record.get('first_name', '') + ' ' + reviewer_record.get('last_name', '')
+                # reviewer['name'] = reviewer_record.get('first_name', '') + ' ' + reviewer_record.get('last_name', '')
+                reviewer['name'] = reviewer_record.get('name', '')
                 reviewer['reviewer_email'] = reviewer_record.get('email')
     else:
         reviewers_list = []
@@ -255,7 +257,8 @@ def view_paper(id):
             conference_name = conference_record.get('name')
         reviewers_list = paper_details.get('reviewer_assignment')
         reviewers_list = get_assigned_reviewers_list(reviewers_list)
-    return render_template(f"{session['role']}/paper_details.html", conference_name=conference_name, paper_details=paper_details,
+    return render_template(f"{session['role']}/paper_details.html", conference_name=conference_name,
+                           paper_details=paper_details,
                            reviewers_list=reviewers_list)
 
 
@@ -317,11 +320,11 @@ def upload_new_paper():
     return render_template('select_conference.html', form=form)
 
 
-@app.route('/upload/paper/<conference_id>', methods=['GET', 'POST'])
+@app.route('/upload/paper/<conference_id>/', methods=['GET', 'POST'])
 @login_required
 def upload_paper(conference_id):
     current_date = datetime.utcnow().date().isoformat()
-    conference_record = db.conference.find_one({'_id': conference_id, 'start_date': {'$lte': current_date},
+    conference_record = db.conference.find_one({'_id': ObjectId(conference_id), 'start_date': {'$lte': current_date},
                                                 'paper_submission_date': {'$gte': current_date}})
     if not conference_record:
         abort(404, description="No such conference found.")
@@ -446,6 +449,20 @@ def view_papers_by_user_id(user_id):
     #     return render_template('author/papers_by_user_id.html', papers_list=[])
 
 
+def get_recommended_reviewers(abstract):
+    url = '/reviewerRecommendation'
+    response = requests.post(url, json={'abstract': abstract}).json()
+    if response.status_code != 200:
+        abort(500, description='Reviewer Recommendation API Error')
+    reviewers = response.get('authors', [])
+    recommended_reviewers = []
+    if reviewers:
+        for reviewer_name in reviewers:
+            reviewer = db.user.find_one({'name': reviewer_name, 'role_type.reviewer': {'$ne': False}}, {'email': 1})
+            if reviewer:
+                recommended_reviewers.append({'name': reviewer_name, 'reviewer_email': reviewer['email']})
+    return recommended_reviewers
+
 @app.route('/submit/reviewer/<paper_id>/', methods=['GET', 'POST'])
 @login_required
 def paper_reviewer_assignment(paper_id):
@@ -459,10 +476,13 @@ def paper_reviewer_assignment(paper_id):
 
     if 'reviewer_assignment' in paper_record and paper_record['reviewer_assignment']:
         reviewers_list = get_assigned_reviewers_list(paper_record['reviewer_assignment'])
+    recommended_reviewers_list = []
+    # recommended_reviewers_list = get_recommended_reviewers(paper_record.get('abstract', ''))
 
     if request.method == 'GET':
         # display paper name in place of paper_id, authors and abstract to the editor
-        return render_template('dynamic_input.html', paper_record=paper_record, form=form, reviewers_list=reviewers_list)
+        return render_template('dynamic_input.html', paper_record=paper_record, form=form,
+                               reviewers_list=reviewers_list, recommended_reviewers_list=recommended_reviewers_list)
     else:
         reviewer_emails = request.form.getlist('input_text[]')
         reviewer_ids = []
@@ -471,10 +491,12 @@ def paper_reviewer_assignment(paper_id):
             # also email address not equal to authors' email
             # reviewers can be assigned any no. of papers
             # reviewers can only accept X paper for each conference
-            reviewer_id = db.user.find_one({'email': reviewer_email}).get('_id')
-            if reviewer_id:
+            # reviewer_record = db.user.find_one({'email': reviewer_email})
+            reviewer_record = db.user.find_one({'email': reviewer_email, 'role_type.reviewer': {'$ne': False}})
+            if reviewer_record and reviewer_record.get('_id'):
                 # check if the paper id already exists as review requested or accepted, if true then don't update
                 # check if the paper id already exists as declined, if true then update
+                reviewer_id = reviewer_record.get('_id')
                 reviewer_record = db.user.find_one(
                     {'_id': reviewer_id, 'role_type.reviewer.paper_id': ObjectId(paper_id)})
                 if reviewer_record:
@@ -494,9 +516,10 @@ def paper_reviewer_assignment(paper_id):
                                        {'$addToSet': {'role_type.reviewer': {'paper_id': ObjectId(paper_id),
                                                                              'review_status': 'Review Requested'}}})
                 reviewer_ids.append({'reviewer_id': reviewer_id})
-        db.paper.update_one({'_id': ObjectId(paper_id)},
-                            {'$addToSet': {'reviewer_assignment': {'$each': reviewer_ids}},
-                             '$set': {'paper_status': 'Review Requested'}}, upsert=False)
+        if reviewer_ids:
+            db.paper.update_one({'_id': ObjectId(paper_id)},
+                                {'$addToSet': {'reviewer_assignment': {'$each': reviewer_ids}},
+                                 '$set': {'paper_status': 'Review Requested'}}, upsert=False)
         return redirect(url_for('view_paper', id=paper_id))
 
 
@@ -637,7 +660,10 @@ def submit_review(reviewer_id, paper_id):
         # if response.status_code != 200:
         #     print('aspect_scores api error:', response.status_code)
         #     abort(500)
-        # aspect_scores = response['aspect_scores']  # {'impact': 5, 'clarity': 4}
+        # impact = response.get('impact')
+        # clarity = response.get('clarity')
+        ## aspect_scores = response['aspect_scores']  # {'impact': 5, 'clarity': 4}
+        # aspect_scores = {'impact': impact, 'clarity': clarity}
         aspect_scores = {'impact': 5, 'clarity': 4}
         created_when = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
         db.paper.update_one(paper_filter, {
@@ -681,7 +707,8 @@ def view_papers_by_status(paper_status):
         title = 'View Rejected Papers'
         papers = db.paper.find({'paper_status': 'Rejected'}, filtered_fields).sort('submission_datetime', -1)
     else:
-        papers = db.paper.find({'paper_status': {'$nin': ['Accepted', 'Rejected']}}, filtered_fields).sort('submission_datetime', -1)
+        papers = db.paper.find({'paper_status': {'$nin': ['Accepted', 'Rejected']}}, filtered_fields).sort(
+            'submission_datetime', -1)
     conferences = db.conference.find({}, {'name': 1})
     conferences_dictionary = {conference['_id']: conference['name'] for conference in conferences}
     papers_list = []

@@ -8,8 +8,9 @@ from conference_management_webapp.conference_management import db
 
 
 class RegistrationForm(FlaskForm):
-    first_name = StringField('First Name', validators=[DataRequired()])
-    last_name = StringField('Last Name', validators=[DataRequired()])
+    # first_name = StringField('First Name', validators=[DataRequired()])
+    # last_name = StringField('Last Name', validators=[DataRequired()])
+    name = StringField('Name', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password',

@@ -15,8 +15,9 @@ conference = [
 user = [
     {
         'id': 1,
-        'first_name': '',
-        'last_name': '',
+        # 'first_name': '',
+        # 'last_name': '',
+        'name': '',
         'email': '',
         'password': '',
         # 'role_type': [

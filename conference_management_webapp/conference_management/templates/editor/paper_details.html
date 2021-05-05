@@ -42,39 +42,39 @@
             </table>
             <br/>
 
-            {% if reviewers_list %}
-                <div style="font-size: 1.75rem; font-weight: 500">
-                    Reviewers:
-                    {% if paper_details.get('paper_status') != 'Accepted' and paper_details.get('paper_status') != 'Rejected' %}
-                        <input type="button" value="Assign Reviewers" class="btn btn-info"
-                               style="float: right;">
-                    {% endif %}
-                </div>
+            {#            {% if reviewers_list %}#}
+            <div style="font-size: 1.75rem; font-weight: 500">
+                Reviewers:
+                {% if paper_details.get('paper_status') != 'Accepted' and paper_details.get('paper_status') != 'Rejected' %}
+                    <a href="{{ url_for('paper_reviewer_assignment', paper_id=paper_details.get('_id')) }}"
+                       class="btn btn-info" style="float: right;">Assign Reviewers</a>
+                {% endif %}
+            </div>
 
-                <table class="table table-hover">
-                    <thead>
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Reviewer Name</th>
+                    <th>Email</th>
+                    <th>Reviews</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for index in range(0, reviewers_list|length) %}
                     <tr>
-                        <th>No.</th>
-                        <th>Reviewer Name</th>
-                        <th>Email</th>
-                        <th>Reviews</th>
+                        <td>{{ index + 1 }}</td>
+                        <td>{{ reviewers_list[index].get('name') }}</td>
+                        <td>{{ reviewers_list[index].get('reviewer_email') }}</td>
+                        <td>
+                            <a href="{{ url_for('view_review', reviewer_id=reviewers_list[index].get('reviewer_id'), paper_id=paper_details.get('_id')) }}"
+                               target="_blank">View
+                                Reviews</a></td>
                     </tr>
-                    </thead>
-                    <tbody>
-                    {% for index in range(0, reviewers_list|length) %}
-                        <tr>
-                            <td>{{ index + 1 }}</td>
-                            <td>{{ reviewers_list[index].get('name') }}</td>
-                            <td>{{ reviewers_list[index].get('reviewer_email') }}</td>
-                            <td>
-                                <a href="{{ url_for('view_review', reviewer_id=reviewers_list[index].get('reviewer_id'), paper_id=paper_details.get('_id')) }}"
-                                   target="_blank">View
-                                    Reviews</a></td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+            {#            {% endif %}#}
             {% if paper_details.get('paper_status') != 'Accepted' and paper_details.get('paper_status') != 'Rejected' %}
                 <form action='{{ url_for('paper_publish_request', paper_id=paper_details.get('_id')) }}'
                       method="post">

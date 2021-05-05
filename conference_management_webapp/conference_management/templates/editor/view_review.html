@@ -9,6 +9,7 @@
                     <p>{{ review_record.get('review') }}</p>
                 </div>
                 <div style="color: #aaa;">{{ review_record.get('created_when') }}</div>
+{#                <p>Aspect Scores: Impact: {{ review_record['aspect_scores']['impact'] }} | Clarity: {{ review_record['aspect_scores']['clarity'] }}</p>#}
             {% endfor %}
         {% else %}
             <p>Feedback Requested. No reviews to show at present.</p>
