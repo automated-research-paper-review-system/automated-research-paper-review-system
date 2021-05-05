@@ -418,11 +418,11 @@ def submit_paper(conference_id):
                 form_response['abstract'] = form.abstract.data
                 # read json from s3 and compare with form values, update and upload if necessary
                 json_file_update(form_response, json_filename=json_filename)
-                # url = '/getAcceptancePrediction'
-                # response = requests.post(url, json={'abstract': form.abstract.data, 'title': form.paper_title.data,
-                #                          'references': paper_record.get('references'), 'referenceMentions': paper_record.get('referenceMentions')}).json()
-                # form_response['Acceptance_Probability'] = response['Acceptance_Probability']
-                # form_response['accepted'] = response['accepted']
+                url = 'http://localhost:8084/getAcceptancePrediction'
+                response = requests.post(url, json={'abstract': form.abstract.data, 'title': form.paper_title.data,
+                                         'references': paper_record.get('references'), 'referenceMentions': paper_record.get('referenceMentions')}).json()
+                form_response['Acceptance_Probability'] = response['Acceptance_Probability']
+                form_response['accepted'] = response['accepted']
                 db.paper.update_one(document_filter, {'$set': form_response},
                                     upsert=False)
                 flash(f'Submitted Paper: {form.paper_title.data}!', 'success')
@@ -450,10 +450,10 @@ def view_papers_by_user_id(user_id):
 
 
 def get_recommended_reviewers(abstract):
-    url = '/reviewerRecommendation'
+    url = 'http://localhost:8083/reviewerRecommendation'
     response = requests.post(url, json={'abstract': abstract}).json()
-    if response.status_code != 200:
-        abort(500, description='Reviewer Recommendation API Error')
+    # if response.status_code != 200:
+    #     abort(500, description='Reviewer Recommendation API Error')
     reviewers = response.get('authors', [])
     recommended_reviewers = []
     if reviewers:
@@ -477,7 +477,7 @@ def paper_reviewer_assignment(paper_id):
     if 'reviewer_assignment' in paper_record and paper_record['reviewer_assignment']:
         reviewers_list = get_assigned_reviewers_list(paper_record['reviewer_assignment'])
     recommended_reviewers_list = []
-    # recommended_reviewers_list = get_recommended_reviewers(paper_record.get('abstract', ''))
+    recommended_reviewers_list = get_recommended_reviewers(paper_record.get('abstract', ''))
 
     if request.method == 'GET':
         # display paper name in place of paper_id, authors and abstract to the editor
@@ -654,21 +654,21 @@ def submit_review(reviewer_id, paper_id):
 
     if form.validate_on_submit():
         # make api call
-        # url = '/getAspectScores'
-        # response = requests.post(url, json={'id': reviewer_id, 'review': form.review.data}).json()
+        url = 'http://localhost:8081/getAspectScores'
+        response = requests.post(url, json={'id': reviewer_id, 'review': form.review.data}).json()
         # get impact and clarity
         # if response.status_code != 200:
         #     print('aspect_scores api error:', response.status_code)
         #     abort(500)
-        # impact = response.get('impact')
-        # clarity = response.get('clarity')
-        ## aspect_scores = response['aspect_scores']  # {'impact': 5, 'clarity': 4}
-        # aspect_scores = {'impact': impact, 'clarity': clarity}
+        impact = response.get('impact')
+        clarity = response.get('clarity')
+        # aspect_scores = response['aspect_scores']  # {'impact': 5, 'clarity': 4}
+        aspect_scores = {'impact': impact, 'clarity': clarity}
         aspect_scores = {'impact': 5, 'clarity': 4}
         created_when = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
         db.paper.update_one(paper_filter, {
             '$addToSet': {'reviewer_assignment.$.reviews': {'review': form.review.data,
-                                                            'aspect_score': aspect_scores,
+                                                            'aspect_scores': aspect_scores,
                                                             'created_when': created_when}}})
         reviews.append({'review': form.review.data, 'created_when': created_when})
         flash('Submitted Review!', 'success')
