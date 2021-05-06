@@ -29,13 +29,13 @@
             <div class="collapse navbar-collapse" id="navbarToggle">
                 <div class="navbar-nav mr-auto">
                     <a class="nav-item nav-link" href="{{ url_for('home') }}">Home</a>
-                    <a class="nav-item nav-link" href="#">About</a>
+                    <a class="nav-item nav-link" href="#">About Us</a>
                 </div>
                 <!-- Navbar Right Side -->
                 <div class="navbar-nav">
                     {% if session.get('is_authenticated') %}
                         {#                <a class="nav-item nav-link" href="#">New Post</a>#}
-                        {#                <a class="nav-item nav-link" href="#">Account</a>#}
+                        <a class="nav-item nav-link" href="#">{{ session.get('user_name', '') }}</a>
                         <a class="nav-item nav-link" href="{{ url_for('logout') }}">Logout</a>
                     {% else %}
                         <a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
@@ -51,7 +51,7 @@
         {% if session.get('role') == 'editor' %}
             <div class="col-md-4">
                 <div class="content-section">
-                    <h3>Editor's Explore</h3>
+                    <h3>Technical Program Chair's Explore</h3>
                     <ul class="list-group">
                         <li class="list-group-item list-group-item-light"><a href="{{ url_for('create_conference') }}">Create
                             Conference</a></li>

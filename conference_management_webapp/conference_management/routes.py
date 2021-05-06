@@ -113,6 +113,7 @@ def login():
         if user and bcrypt.check_password_hash(user.get('password'), form.password.data):
             session['role'] = form.role.data
             session['user_id'] = str(user.get('_id'))
+            session['user_name'] = user.get('name')
             session['is_authenticated'] = True
             next_url = request.form.get("next")
             flash('You have been logged in!', 'success')
@@ -140,6 +141,7 @@ def logout():
     if session.get('is_authenticated', None):
         session.pop('is_authenticated', None)
         session.pop('user_id', None)
+        session.pop('user_name', None)
         session.pop('role', None)
         gc.collect()
         flash('Successfully logged out.', 'success')
