@@ -547,6 +547,7 @@ def view_review_request(reviewer_id):
                         paper_record = db.paper.find_one({'_id': review_request['paper_id']})
                         pending_requests['paper_id'] = str(review_request['paper_id'])
                         pending_requests['paper_title'] = paper_record.get('paper_title')
+                        pending_requests['paper_status'] = paper_record.get('paper_status')
                         conference_id = paper_record.get('conference_id')
                         conference_record = db.conference.find_one({'_id': conference_id})
                         pending_requests['conference_name'] = conference_record.get('name')
