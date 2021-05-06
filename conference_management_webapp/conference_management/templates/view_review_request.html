@@ -19,12 +19,18 @@
                     <td>{{ record.get('review_submission_date') }}</td>
                     {% if request_status == 'accepted' %}
                         {% if record.get('add_review') %}
-                            <td>
-                                <a href="{{ url_for('submit_review', reviewer_id=record.reviewer_id, paper_id=record.paper_id) }}">Add
-                                    Review
-                                </a>
-                            </td>
+                            {% if record.get('paper_status') != 'Accepted' and record.get('paper_status') != 'Rejected' %}
+                                <td>
+                                    <a href="{{ url_for('submit_review', reviewer_id=record.reviewer_id, paper_id=record.paper_id) }}">Add
+                                        Review
+                                    </a>
+                                </td>
                             {% else %}
+                                <td class="text-muted">
+                                    Add Review
+                                </td>
+                            {% endif %}
+                        {% else %}
                             <td class="text-muted">
                                 Add Review
                             </td>

@@ -20,25 +20,27 @@
                 {% endfor %}
             {% endif %}
             <br/>
-            <form method="post">
-                {{ form.hidden_tag() }}
-                <div class="form-group">
-                    <h3>{{ form.review.label(class="form-control-label") }}</h3>
-                    {% if form.review.errors %}
-                        {{ form.review(class="form-control form-control-lg is-invalid") }}
-                        <div class="invalid-feedback">
-                            {% for error in form.review.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.review(class="form-control form-control-lg", id="autosize-abstract") }}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                    {{ form.submit(class="btn btn-outline-info") }}
-                </div>
-            </form>
+            {% if paper_record.get('paper_status') != 'Accepted' and paper_record.get('paper_status') != 'Rejected' %}
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        <h3>{{ form.review.label(class="form-control-label") }}</h3>
+                        {% if form.review.errors %}
+                            {{ form.review(class="form-control form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.review.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.review(class="form-control form-control-lg", id="autosize-abstract") }}
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.submit(class="btn btn-outline-info") }}
+                    </div>
+                </form>
+            {% endif %}
         </div>
     {% endif %}
     <script src="http://www.jacklmoore.com/js/autosize.min.js"></script>
