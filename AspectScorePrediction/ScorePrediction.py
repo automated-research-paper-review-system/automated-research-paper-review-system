@@ -44,7 +44,7 @@ class ScorePrediction:
             all_response['Technical Soundness'] = 2
             all_response['Originality'] = 2
         else:
-            all_response['clarity'] = self.predict_clarity(all_response['review'])
+            all_response['Clarity'] = self.predict_clarity(all_response['review'])
             all_response['Impact'] = random.randint(1, 3)
             all_response['Technical Soundness'] = random.randint(1, 3)
             all_response['Originality'] = random.randint(1, 3)
