@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField, PasswordField, SubmitField, TextAreaField, RadioField
@@ -61,6 +62,7 @@ class ConferenceForm(FlaskForm):
         if not (self.paper_submission_date.data <= review_submission_date.data <= self.end_date.data):
             raise ValidationError('Please set review submission date >= paper submission date and <= end date.')
 
+
 class UpdateConferenceForm(FlaskForm):
     name = StringField('Conference Name', validators=[DataRequired()])
     start_date = DateField('Conference Start Date', validators=[DataRequired()])
@@ -87,8 +89,6 @@ class UpdateConferenceForm(FlaskForm):
             raise ValidationError('Please set review submission date >= paper submission date and <= end date.')
 
 
-
-# Conference list -> choose conference -> upload paper for that conference id
 class Paper(FlaskForm):
     # author_ids = []
     paper_title = TextAreaField('Paper Title', validators=[DataRequired()])
@@ -97,7 +97,8 @@ class Paper(FlaskForm):
     submit = SubmitField('Submit')
 
     def validate_paper(self, paper_title):
-        paper = db.paper.find_one({'email': paper_title.data.strip()})
+        paper_title = re.sub(r'\s+', ' ', paper_title.data)
+        paper = db.paper.find_one({'paper_title': paper_title})
         if paper:
             raise ValidationError('That paper title is taken. Please choose a unique paper title.')
 
