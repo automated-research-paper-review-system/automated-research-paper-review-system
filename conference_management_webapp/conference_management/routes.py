@@ -637,14 +637,14 @@ def get_aspect_scores(reviewer_id, review):
         # if response.status_code != 200:
         #     print('aspect_scores api error:', response.status_code)
         #     abort(500)
-        if 'impact' in response:
-            aspect_scores['impact'] = response['impact']
-        if 'clarity' in response:
-            aspect_scores['clarity'] = response.get('clarity')
-        if 'technical_soundness' in response:
-            aspect_scores['technical_soundness'] = response['technical_soundness']
-        if 'originality' in response:
-            aspect_scores['originality'] = response['originality']
+        if 'Impact' in response:
+            aspect_scores['impact'] = response['Impact']
+        if 'Clarity' in response:
+            aspect_scores['clarity'] = response.get('Clarity')
+        if 'Technical Soundness' in response:
+            aspect_scores['technical_soundness'] = response['Technical Soundness']
+        if 'Originality' in response:
+            aspect_scores['originality'] = response['Originality']
     except Exception as e:
         print('Error occurred when calling aspect scores api:', e)
     finally:
