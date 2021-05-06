@@ -9,7 +9,22 @@
                     <p>{{ review_record.get('review') }}</p>
                 </div>
                 <div style="color: #aaa;">{{ review_record.get('created_when') }}</div>
-                <p>Aspect Scores: Impact: {{ review_record['aspect_scores']['impact'] }} | Clarity: {{ review_record['aspect_scores']['clarity'] }}</p>
+                {% if review_record.get('aspect_scores') %}
+                    <p>Aspect Scores:
+                        {% if review_record['aspect_scores'].get('impact') %}
+                            Impact: {{ review_record['aspect_scores']['impact'] }} |
+                        {% endif %}
+                        {% if review_record['aspect_scores'].get('clarity') %}
+                            Clarity: {{ review_record['aspect_scores']['clarity'] }}
+                        {% endif %}
+                        {% if review_record['aspect_scores'].get('technical_soundness') %}
+                            Technical Soundness: {{ review_record['aspect_scores']['technical_soundness'] }}
+                        {% endif %}
+                        {% if review_record['aspect_scores'].get('originality') %}
+                            Originality: {{ review_record['aspect_scores']['originality'] }}
+                        {% endif %}
+                    </p>
+                {% endif %}
             {% endfor %}
         {% else %}
             <p>Feedback Requested. No reviews to show at present.</p>
