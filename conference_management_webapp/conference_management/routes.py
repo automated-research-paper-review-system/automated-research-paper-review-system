@@ -200,7 +200,7 @@ def update_conference(id):
                 # 'created_when': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
                 # 'updated_when': datetime.utcnow
             }}
-            db.conference.update_one(id_dictionary, updated_conference_record)
+            db.conference.update_one(id_dictionary, updated_conference_record, upsert=False)
             return redirect(url_for('conference'))
         form.name.data = conference_record['name']
         form.start_date.data = datetime.strptime(conference_record['start_date'], '%Y-%m-%d')
@@ -382,8 +382,9 @@ def upload_paper(conference_id):
                     document_upsert['references'] = len(parsed_json.get('references', []))
                     document_upsert['referenceMentions'] = 55
                     db.user.update_one({'_id': ObjectId(session['user_id'])},
-                                       {'$addToSet': {'role_type.author': {'paper_id': document.inserted_id}}})
-                    db.paper.update_one(document_filter, {'$set': document_upsert})
+                                       {'$addToSet': {'role_type.author': {'paper_id': document.inserted_id}}},
+                                       upsert=False)
+                    db.paper.update_one(document_filter, {'$set': document_upsert}, upsert=False)
 
     except Exception as e:
         print(e)
@@ -422,7 +423,8 @@ def submit_paper(conference_id):
                 json_file_update(form_response, json_filename=json_filename)
                 url = 'http://localhost:8084/getAcceptancePrediction'
                 response = requests.post(url, json={'abstract': form.abstract.data, 'title': form.paper_title.data,
-                                         'references': paper_record.get('references'), 'referenceMentions': paper_record.get('referenceMentions')}).json()
+                                                    'references': paper_record.get('references'),
+                                                    'referenceMentions': paper_record.get('referenceMentions')}).json()
                 form_response['Acceptance_Probability'] = response['Acceptance_Probability']
                 form_response['accepted'] = response['accepted']
                 db.paper.update_one(document_filter, {'$set': form_response},
@@ -464,6 +466,7 @@ def get_recommended_reviewers(abstract):
             if reviewer:
                 recommended_reviewers.append({'name': reviewer_name, 'reviewer_email': reviewer['email']})
     return recommended_reviewers
+
 
 @app.route('/submit/reviewer/<paper_id>/', methods=['GET', 'POST'])
 @login_required
@@ -510,13 +513,15 @@ def paper_reviewer_assignment(paper_id):
                         if 'Declined' in filtered_review_status:
                             db.user.update_one({'_id': reviewer_id, 'role_type.reviewer.paper_id': ObjectId(paper_id),
                                                 'role_type.reviewer.review_status': 'Declined'},
-                                               {'$set': {'role_type.reviewer.$.review_status': 'Review Requested'}})
+                                               {'$set': {'role_type.reviewer.$.review_status': 'Review Requested'}},
+                                               upsert=False)
                         else:
                             continue
                 else:
                     db.user.update_one({'_id': reviewer_id},
                                        {'$addToSet': {'role_type.reviewer': {'paper_id': ObjectId(paper_id),
-                                                                             'review_status': 'Review Requested'}}})
+                                                                             'review_status': 'Review Requested'}}},
+                                       upsert=False)
                 reviewer_ids.append({'reviewer_id': reviewer_id})
         if reviewer_ids:
             db.paper.update_one({'_id': ObjectId(paper_id)},
@@ -615,14 +620,17 @@ def review_request(reviewer_id, paper_id):
 
     if form.validate_on_submit():
         if 'accept' in request.form:
-            db.user.update_one(reviewer_filter, {'$set': {'role_type.reviewer.$.review_status': 'Accepted'}})
+            db.user.update_one(reviewer_filter, {'$set': {'role_type.reviewer.$.review_status': 'Accepted'}},
+                               upsert=False)
             flash('Review Request: Accepted', 'success')
             return redirect(url_for('submit_review', reviewer_id=reviewer_id, paper_id=paper_id))
 
         if 'decline' in request.form:
             db.paper.update_one(paper_filter,
-                                {'$pull': {'reviewer_assignment': {'reviewer_id': reviewer_filter['_id']}}})
-            db.user.update_one(reviewer_filter, {'$set': {'role_type.reviewer.$.review_status': 'Declined'}})
+                                {'$pull': {'reviewer_assignment': {'reviewer_id': reviewer_filter['_id']}}},
+                                upsert=False)
+            db.user.update_one(reviewer_filter, {'$set': {'role_type.reviewer.$.review_status': 'Declined'}},
+                               upsert=False)
             flash('Review Request: Declined', 'danger')
             return redirect(
                 url_for('view_review_request_with_status', request_status='declined', reviewer_id=reviewer_id))
@@ -685,7 +693,7 @@ def submit_review(reviewer_id, paper_id):
         db.paper.update_one(paper_filter, {
             '$addToSet': {'reviewer_assignment.$.reviews': {'review': form.review.data,
                                                             'aspect_scores': aspect_scores,
-                                                            'created_when': created_when}}})
+                                                            'created_when': created_when}}}, upsert=False)
         reviews.append({'review': form.review.data, 'created_when': created_when})
         flash('Submitted Review!', 'success')
         form.review.data = ''
@@ -746,5 +754,5 @@ def paper_publish_request(paper_id):
     elif 'Rejected' in request.form:
         paper_status = 'Rejected'
     if paper_status:
-        db.paper.update_one({'_id': ObjectId(paper_id)}, {'$set': {'paper_status': paper_status}})
+        db.paper.update_one({'_id': ObjectId(paper_id)}, {'$set': {'paper_status': paper_status}}, upsert=False)
     return redirect(url_for('view_paper', id=paper_id))
