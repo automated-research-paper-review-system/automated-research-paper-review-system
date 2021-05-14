@@ -96,17 +96,17 @@ class Paper(FlaskForm):
     abstract = TextAreaField('Abstract', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
-    def validate_paper_title(self, paper_title):
-        paper_title = re.sub(r'\s+', ' ', paper_title.data)
-        paper = db.paper.find_one({'paper_title': paper_title})
-        if paper:
-            raise ValidationError('That paper title is taken. Please choose a unique paper title.')
+    # def validate_paper_title(self, paper_title):
+    #     paper_title = re.sub(r'\s+', ' ', paper_title.data)
+    #     paper = db.paper.find_one({'paper_title': paper_title})
+    #     if paper:
+    #         raise ValidationError('That paper title is taken. Please choose a unique paper title.')
 
-    def validate_abstract(self, abstract):
-        abstract = re.sub(r'\s+', ' ', abstract.data)
-        abstract = db.paper.find_one({'abstract': abstract})
-        if abstract:
-            raise ValidationError('That abstract is taken. Please write a different abstract.')
+    # def validate_abstract(self, abstract):
+    #     abstract = re.sub(r'\s+', ' ', abstract.data)
+    #     abstract = db.paper.find_one({'abstract': abstract})
+    #     if abstract:
+    #         raise ValidationError('That abstract is taken. Please write a different abstract.')
 
 
 class ReviewRequest(FlaskForm):
