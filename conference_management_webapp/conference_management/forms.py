@@ -104,9 +104,9 @@ class Paper(FlaskForm):
 
     def validate_abstract(self, abstract):
         abstract = re.sub(r'\s+', ' ', abstract.data)
-        paper = db.paper.find_one({'abstract': abstract})
-        if paper:
-            raise ValidationError('That abstract is taken. Please choose a unique paper title.')
+        abstract = db.paper.find_one({'abstract': abstract})
+        if abstract:
+            raise ValidationError('That abstract is taken. Please write a different abstract.')
 
 
 class ReviewRequest(FlaskForm):
