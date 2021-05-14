@@ -1,5 +1,4 @@
 import pickle
-# from tensorflow import keras
 from keras.models import load_model
 from keras.preprocessing.sequence import pad_sequences
 from preprocessor import *
@@ -10,44 +9,31 @@ import random
 class ScorePrediction:
 
     def __init__(self):
-
-        # load vectorizer and prediction model
-        self.tokenizer = pickle.load(open('model/score_token_vector.pickel', 'rb'))
-        self.model = load_model('model/clarity_model.h5')
         self.MAX_SEQUENCE_LENGTH = 500
 
-    def predict_clarity(self, review):
+    def predict_aspect(self, review, aspect):
+
+        # load vectorizer and prediction model
+        modelPath = 'model/' + aspect + '_model.h5'
+        tokenizerPath = 'model/' + aspect +'_vector.pickel'
+        tokenizer = pickle.load(open(tokenizerPath, 'rb'))
+        model = load_model(modelPath)
+
+        #preprocess the input review
         processed_review = preprocess(str(review))
-        # new_review = ['It is not clear to me how the presented approach works.']
-        seq = self.tokenizer.texts_to_sequences([processed_review])
+        seq = tokenizer.texts_to_sequences([processed_review])
         padded = pad_sequences(seq, maxlen=self.MAX_SEQUENCE_LENGTH)
-        pred = self.model.predict(padded)
-        # print("\nprediction-", pred)
+
+        #predict the aspect score
+        pred = model.predict(padded)
         labels = ['1', '2', '3']
-        # print("\nargmax-", np.argmax(pred))
         return labels[np.argmax(pred)]
 
     def predictions(self, all_response):
-        if all_response['reviewer_id'] == 1:
-            all_response['Clarity'] = 3
-            all_response['Impact'] = 2
-            all_response['Technical Soundness'] = 2
-            all_response['Originality'] = 3
-        elif all_response['reviewer_id'] == 2:
-            all_response['Clarity'] = 3
-            all_response['Impact'] = 2
-            all_response['Technical Soundness'] = 1
-            all_response['Originality'] = 3
-        elif all_response['reviewer_id'] == 3:
-            all_response['Clarity'] = 2
-            all_response['Impact'] = 2
-            all_response['Technical Soundness'] = 2
-            all_response['Originality'] = 2
-        else:
-            all_response['Clarity'] = self.predict_clarity(all_response['review'])
-            all_response['Impact'] = random.randint(1, 3)
-            all_response['Technical Soundness'] = random.randint(1, 3)
-            all_response['Originality'] = random.randint(1, 3)
+        all_response['clarity'] = self.predict_aspect(all_response['review'], 'clarity')
+        all_response['Impact'] = self.predict_aspect(all_response['review'], 'impact')
+        all_response['Technical Soundness'] = self.predict_aspect(all_response['review'], 'soundness')
+        all_response['Originality'] = self.predict_aspect(all_response['review'], 'originality')
         del all_response['review']
         return all_response
 

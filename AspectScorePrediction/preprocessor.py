@@ -1,15 +1,17 @@
 import re
 import nltk
 from nltk.stem import WordNetLemmatizer
-from stop_words import get_stop_words
+from nltk.corpus import stopwords
 import string
 from string import digits
 from io import StringIO
 from html.parser import HTMLParser
+
 nltk.download('punkt')
 nltk.download('wordnet')
-stop_words = get_stop_words('en')
+nltk.download('stopwords')
 
+stop_words = list(set(stopwords.words('english'))) 
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -69,33 +71,3 @@ def preprocess(text):
     text = ' '.join([lemmatizer.lemmatize(w) for w in word_list])
 
     return text
-
-
-
-
-
-
-# def predictions(all_response):
-#     score_prediction = ScorePrediction()
-#     if all_response['reviewer_id'] == 1:
-#         all_response['Clarity'] = 3
-#         all_response['Impact'] = 2
-#         all_response['Technical Soundness'] = 2
-#         all_response['Originality'] = 3
-#     elif all_response['reviewer_id'] == 2:
-#         all_response['Clarity'] = 3
-#         all_response['Impact'] = 2
-#         all_response['Technical Soundness'] = 1
-#         all_response['Originality'] = 3
-#     elif all_response['reviewer_id'] == 3:
-#         all_response['Clarity'] = 2
-#         all_response['Impact'] = 2
-#         all_response['Technical Soundness'] = 2
-#         all_response['Originality'] = 2
-#     else:
-#         all_response['clarity'] = score_prediction.predict_clarity(all_response['review'])
-#         all_response['Impact'] = random.randint(1,3)
-#         all_response['Technical Soundness'] = random.randint(1,3)
-#         all_response['Originality'] = random.randint(1,3)
-#
-#     return all_response

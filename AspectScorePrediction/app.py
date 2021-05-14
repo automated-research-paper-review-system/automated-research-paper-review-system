@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from preprocessor import *
+# from preprocessor import *
 from ScorePrediction import *
 # from flask_cors import CORS
 # import json, os
