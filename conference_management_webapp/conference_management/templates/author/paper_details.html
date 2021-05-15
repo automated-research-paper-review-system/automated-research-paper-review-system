@@ -59,7 +59,7 @@
 {#                            <td>{{ reviewers_list[index].get('reviewer_email') }}</td>#}
                             <td>
                                 <a href="{{ url_for('view_review', reviewer_id=reviewers_list[index].get('reviewer_id'), paper_id=paper_details.get('_id')) }}" target="_blank">View
-                                    Reviews from Reviewer {{ index }}</a></td>
+                                    Reviews from Reviewer {{ index + 1 }}</a></td>
                         </tr>
                     {% endfor %}
                     </tbody>
